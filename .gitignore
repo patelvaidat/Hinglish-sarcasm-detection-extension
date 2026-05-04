@@ -88,3 +88,7 @@ extension/*.zip
 *.tmp
 *.bak
 *.swp
+
+# Local model artifacts
+backend/saved_model/
+!backend/saved_model/.gitkeep
