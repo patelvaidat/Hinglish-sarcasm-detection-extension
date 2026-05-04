@@ -118,9 +118,7 @@ function injectSarcasmLabel(tweetElement, prediction) {
   const label = document.createElement('div');
   label.className = 'sarcasm-label';
   label.innerHTML = `
-    <span class="sarcasm-icon">??</span>
-    <span class="sarcasm-text">Sarcasm Detected</span>
-    <span class="sarcasm-confidence">${(prediction.sarcasm_score * 100).toFixed(1)}</span>
+    <span class="sarcasm-confidence">${(prediction.sarcasm_score * 100).toFixed(1)}% Sarcasm</span>
   `;
 
   // Highlight tweet background
