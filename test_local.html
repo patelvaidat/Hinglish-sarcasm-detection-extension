@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sarcasm Detector - Local Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .test-section {
+            margin-bottom: 30px;
+        }
+
+        .test-section h2 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.2s;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result.sarcastic {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+
+        .result.not-sarcastic {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .result-icon {
+            font-size: 32px;
+        }
+
+        .result-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .result-details {
+            margin-top: 15px;
+        }
+
+        .result-item {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .sample-texts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .sample-button {
+            background: #f0f0f0;
+            border: 2px solid #ddd;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .sample-button:hover {
+            background: #e0e0e0;
+            border-color: #667eea;
+        }
+
+        .stats {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .stats h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .loading {
+            display: inline-block;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>?? Sarcasm Detector - Local Test</h1>
+        <p class="subtitle">Test the API without social media access</p>
+
+        <div id="connectionStatus" class="status disconnected">
+            ?? Checking connection to API...
+        </div>
+
+        <div class="test-section">
+            <h2>?? Test Sarcasm Detection</h2>
+            <p style="color: #666; margin-bottom: 15px;">Enter text to analyze for sarcasm:</p>
+            
+            <textarea id="textInput" placeholder="Type or paste text here... Try: 'Oh great, another meeting!'"></textarea>
+            
+            <button class="button" onclick="analyzeSarcasm()">
+                ?? Analyze Sarcasm
+            </button>
+
+            <div class="sample-texts">
+                <button class="sample-button" onclick="setExampleText('Oh great, another meeting that could have been an email')">
+                    ?? Sarcastic: Meeting
+                </button>
+                <button class="sample-button" onclick="setExampleText('Yeah right, that\'s exactly what I wanted to do today')">
+                    ?? Sarcastic: Yeah right
+                </button>
+                <button class="sample-button" onclick="setExampleText('I absolutely love working on weekends!')">
+                    ?? Sarcastic: Weekend work
+                </button>
+                <button class="sample-button" onclick="setExampleText('This is a wonderful day and I am very happy')">
+                    ?? Not Sarcastic: Happy
+                </button>
+            </div>
+
+            <div id="result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>?? API Statistics</h2>
+            <button class="button" onclick="loadStats()">
+                ?? Load Statistics
+            </button>
+            <div id="stats" class="stats" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+
+        // Check connection on load
+        window.addEventListener('load', checkConnection);
+
+        async function checkConnection() {
+            const statusDiv = document.getElementById('connectionStatus');
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusDiv.className = 'status connected';
+                    statusDiv.innerHTML = '?? Connected to API - ' + (data.mode || 'Ready');
+                } else {
+                    throw new Error('API not responding');
+                }
+            } catch (error) {
+                statusDiv.className = 'status disconnected';
+                statusDiv.innerHTML = '?? Cannot connect to API. Make sure backend is running on http://localhost:8000';
+            }
+        }
+
+        function setExampleText(text) {
+            document.getElementById('textInput').value = text;
+        }
+
+        async function analyzeSarcasm() {
+            const text = document.getElementById('textInput').value.trim();
+            const resultDiv = document.getElementById('result');
+
+            if (!text) {
+                alert('Please enter some text to analyze');
+                return;
+            }
+
+            // Show loading
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            resultDiv.innerHTML = '<div class="loading">? Analyzing...</div>';
+
+            try {
+                const response = await fetch(`${API_URL}/predict`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        platform: 'local_test',
+                        metadata: {
+                            test_mode: true
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayResult(data, text);
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <div class="result-header">
+                        <span class="result-icon">?</span>
+                        <span class="result-title">Error</span>
+                    </div>
+                    <p>Could not connect to API. Make sure backend is running:</p>
+                    <pre style="margin-top: 10px; padding: 10px; background: #fff; border-radius: 4px;">cd backend
+.\\venv\\Scripts\\activate
+python main_test.py</pre>
+                    <p style="margin-top: 10px;"><strong>Error details:</strong> ${error.message}</p>
+                `;
+            }
+        }
+
+        function displayResult(data, text) {
+            const resultDiv = document.getElementById('result');
+            const isSarcastic = data.is_sarcastic;
+
+            resultDiv.style.display = 'block';
+            resultDiv.className = isSarcastic ? 'result sarcastic' : 'result not-sarcastic';
+
+            const icon = isSarcastic ? '??' : '??';
+            const title = isSarcastic ? 'Sarcasm Detected!' : 'Not Sarcastic';
+            const percentage = (data.sarcasm_score * 100).toFixed(1);
+
+            resultDiv.innerHTML = `
+                <div class="result-header">
+                    <span class="result-icon">${icon}</span>
+                    <span class="result-title">${title}</span>
+                </div>
+                <div class="result-details">
+                    <div class="result-item">
+                        <strong>Analyzed Text:</strong> "${text}"
+                    </div>
+                    <div class="result-item">
+                        <strong>Sarcasm Score:</strong> ${percentage}%
+                    </div>
+                    <div class="result-item">
+                        <strong>Confidence:</strong> ${(data.confidence * 100).toFixed(1)}%
+                    </div>
+                    <div class="result-item">
+                        <strong>Prediction ID:</strong> ${data.prediction_id}
+                    </div>
+                    <div class="result-item">
+                        <strong>Timestamp:</strong> ${new Date(data.timestamp).toLocaleString()}
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadStats() {
+            const statsDiv = document.getElementById('stats');
+            
+            statsDiv.style.display = 'block';
+            statsDiv.innerHTML = '<p>? Loading statistics...</p>';
+
+            try {
+                const response = await fetch(`${API_URL}/stats`);
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                const rate = (data.sarcasm_rate * 100).toFixed(1);
+
+                statsDiv.innerHTML = `
+                    <h3>?? Prediction Statistics</h3>
+                    <div class="stat-item">
+                        <span>Total Predictions:</span>
+                        <strong>${data.total_predictions || 0}</strong>
+                    </div>
+                    <div class="stat-item">
+                        <span>Sarcastic Detected:</span>
+                        <strong>${data.sarcastic_count || 0}</strong>
+                    </div>
+                    <div class="stat-item">
+                        <span>Not Sarcastic:</span>
+                        <strong>${data.non_sarcastic_count || 0}</strong>
+                    </div>
+                    <div class="stat-item">
+                        <span>Sarcasm Rate:</span>
+                        <strong>${rate}%</strong>
+                    </div>
+                `;
+            } catch (error) {
+                statsDiv.innerHTML = `<p style="color: #dc3545;">? Error loading stats: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# IDEs
+.vscode/
+.idea/
+.vs/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Local environments
+venv311/
+backend/venv/
+
+# Logs
+logs/
+backend/logs/
+*.log
+*.jsonl
+
+# Reports
+reports/
+backend/reports/
+reports/*.txt
+reports/*.json
+backend/reports/*.txt
+backend/reports/*.json
+
+# Data
+data/
+backend/data/
+scraped_data/
+scrapers/scraped_data/
+*.csv
+
+# Model (if large, use Git LFS or separate storage)
+# Uncomment if you don't want to commit model files
+# saved_model/
+
+# Environment variables
+.env
+.env.local
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Extension
+extension/*.crx
+extension/*.pem
+extension/*.zip
+
+# Temporary files
+*.tmp
+*.bak
+*.swp

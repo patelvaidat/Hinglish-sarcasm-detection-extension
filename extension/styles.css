@@ -1,0 +1,504 @@
+/* ── Fonts ─────────────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+/* ── Reset & base ───────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Popup shell ────────────────────────────────────────────────────────────── */
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 13px;
+  background: #0f0f11;
+  color: #e8e6f0;
+  width: 340px;
+  min-height: 120px;
+  overflow-x: hidden;
+}
+
+.popup {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────────── */
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  background: #13121a;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo {
+  font-size: 22px;
+  line-height: 1;
+  filter: drop-shadow(0 0 6px rgba(249,115,22,0.5));
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #f1eeff;
+  letter-spacing: 0.01em;
+}
+
+.platform-badge {
+  font-size: 10px;
+  font-weight: 500;
+  color: #9d94c0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 1px;
+}
+
+.platform-badge[data-platform="reddit"] { color: #ff6314; }
+.platform-badge[data-platform="youtube"] { color: #ff3e3e; }
+
+/* ── Scan button ────────────────────────────────────────────────────────────── */
+.btn-scan {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  background: #f97316;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.btn-scan:hover { background: #ea6a0e; }
+.btn-scan:active { transform: scale(0.97); }
+.btn-scan:disabled { background: #4a3f35; color: #7a6a5a; cursor: not-allowed; }
+
+/* ── States ─────────────────────────────────────────────────────────────────── */
+.state-loading,
+.state-empty,
+.state-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 32px 24px;
+  text-align: center;
+}
+
+/* Loading */
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 2.5px solid rgba(249,115,22,0.2);
+  border-top-color: #f97316;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-text { font-size: 12px; color: #9d94c0; }
+
+/* Empty */
+.empty-icon { font-size: 32px; opacity: 0.5; }
+.empty-title { font-size: 13px; font-weight: 600; color: #c8c0e0; }
+.empty-sub { font-size: 11px; color: #6e6690; line-height: 1.5; max-width: 240px; }
+
+/* Error */
+.error-icon { font-size: 28px; }
+.error-text { font-size: 12px; font-weight: 500; color: #f87171; }
+.error-hint { font-size: 11px; color: #6e6690; line-height: 1.5; }
+.error-hint code { color: #f97316; font-family: 'DM Mono', monospace; font-size: 11px; }
+
+/* ── Results ─────────────────────────────────────────────────────────────────── */
+.state-results {
+  padding: 14px 16px 16px;
+}
+
+/* Stats row */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.stat-card {
+  background: #1c1a25;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 10px 8px;
+  text-align: center;
+}
+
+.stat-card.accent {
+  background: rgba(249, 115, 22, 0.12);
+  border-color: rgba(249,115,22,0.25);
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: #f1eeff;
+  line-height: 1.1;
+  font-family: 'DM Mono', monospace;
+}
+
+.stat-card.accent .stat-value { color: #f97316; }
+
+.stat-label {
+  font-size: 10px;
+  color: #6e6690;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 3px;
+}
+
+/* Chart section */
+.chart-section {
+  margin-bottom: 16px;
+}
+
+.chart-wrap {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Donut */
+.donut { flex-shrink: 0; }
+
+.donut-track {
+  fill: none;
+  stroke: #2a2535;
+  stroke-width: 14;
+}
+
+.donut-fill {
+  fill: none;
+  stroke: #f97316;
+  stroke-width: 14;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.6s cubic-bezier(.4,0,.2,1);
+}
+
+.donut-center-pct {
+  font-family: 'DM Mono', monospace;
+  font-size: 18px;
+  font-weight: 500;
+  fill: #f1eeff;
+}
+
+.donut-center-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  fill: #6e6690;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Legend */
+.chart-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #a099c0;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-dot.sarcastic { background: #f97316; }
+.legend-dot.normal { background: #2a2535; border: 1.5px solid #4a4060; }
+
+/* Section label */
+.section-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #6e6690;
+  margin-bottom: 8px;
+}
+
+/* Bar chart */
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 56px;
+  margin-bottom: 16px;
+}
+
+.bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.bar-bar {
+  width: 100%;
+  border-radius: 3px 3px 0 0;
+  min-height: 0;
+  transition: height 0.4s cubic-bezier(.4,0,.2,1);
+}
+
+.bar-normal   { background: #2a2535; }
+.bar-sarcastic { background: #f97316; opacity: 0.85; }
+
+.bar-label {
+  font-size: 8px;
+  color: #4a4060;
+  font-family: 'DM Mono', monospace;
+  white-space: nowrap;
+}
+
+/* Top comments */
+.top-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.top-card {
+  background: #1c1a25;
+  border: 1px solid rgba(249,115,22,0.15);
+  border-left: 3px solid #f97316;
+  border-radius: 8px;
+  padding: 9px 10px;
+}
+
+.top-card-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+
+.top-rank {
+  font-size: 10px;
+  font-weight: 600;
+  font-family: 'DM Mono', monospace;
+  color: #f97316;
+  min-width: 20px;
+}
+
+.top-author {
+  font-size: 11px;
+  font-weight: 500;
+  color: #a099c0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.top-score-badge {
+  font-size: 10px;
+  font-weight: 600;
+  font-family: 'DM Mono', monospace;
+  background: rgba(249,115,22,0.18);
+  color: #f97316;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.top-tone-badge {
+  font-size: 10px;
+  font-weight: 600;
+  font-family: 'DM Mono', monospace;
+  background: rgba(255,255,255,0.06);
+  color: #d6d1ea;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: capitalize;
+}
+
+.top-fuzzy-badge {
+  font-size: 10px;
+  font-weight: 600;
+  font-family: 'DM Mono', monospace;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: capitalize;
+}
+
+.top-fuzzy-badge.fuzzy-humorous {
+  background: rgba(34,197,94,0.2);
+  color: #22c55e;
+}
+
+.top-fuzzy-badge.fuzzy-mocking {
+  background: rgba(251,146,60,0.2);
+  color: #fb923c;
+}
+
+.top-fuzzy-badge.fuzzy-insulting {
+  background: rgba(239,68,68,0.2);
+  color: #ef4444;
+}
+
+.top-fuzzy-badge.fuzzy-none {
+  background: rgba(107,114,128,0.2);
+  color: #9ca3af;
+}
+
+.top-text {
+  font-size: 11px;
+  color: #c8c0e0;
+  line-height: 1.45;
+  margin-bottom: 6px;
+}
+
+.top-bar-wrap {
+  height: 3px;
+  background: #2a2535;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.top-bar-fill {
+  height: 100%;
+  background: #f97316;
+  border-radius: 2px;
+  transition: width 0.5s cubic-bezier(.4,0,.2,1);
+}
+
+/* Export */
+.export-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.btn-export {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  background: #1c1a25;
+  color: #a099c0;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 7px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-export:hover { background: #25222f; color: #f1eeff; }
+
+.export-hint {
+  font-size: 11px;
+  color: #4caf7d;
+  font-weight: 500;
+}
+
+/* ── Inline label (injected into Reddit/YouTube pages) ──────────────────────── */
+.sd-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(249, 115, 22, 0.12);
+  border: 1px solid rgba(249, 115, 22, 0.35);
+  border-radius: 5px;
+  padding: 2px 7px;
+  margin-bottom: 6px;
+  font-family: system-ui, sans-serif;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #f97316;
+  pointer-events: none;
+  user-select: none;
+}
+
+.sd-label[data-tone="neutral"] {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.12);
+  color: #d6d1ea;
+}
+
+.sd-label[data-tone="light-hearted"] {
+  background: rgba(74, 222, 128, 0.10);
+  border-color: rgba(74, 222, 128, 0.30);
+  color: #7ee2a8;
+}
+
+.sd-label[data-tone="heavy-hearted"] {
+  background: rgba(248, 113, 113, 0.10);
+  border-color: rgba(248, 113, 113, 0.30);
+  color: #f58c8c;
+}
+
+.sd-label[data-tone="unknown"] {
+  background: rgba(249, 115, 22, 0.12);
+  border-color: rgba(249, 115, 22, 0.35);
+  color: #f97316;
+}
+
+.sd-icon { font-size: 11px; }
+.sd-text { font-weight: 600; letter-spacing: 0.01em; }
+.sd-score {
+  font-family: monospace;
+  font-size: 10px;
+  background: rgba(249,115,22,0.2);
+  padding: 0 4px;
+  border-radius: 3px;
+}
+
+.sd-fuzzy {
+  font-family: monospace;
+  font-size: 9px;
+  padding: 0 4px;
+  border-radius: 3px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.sd-fuzzy.fuzzy-humorous {
+  background: rgba(34,197,94,0.2);
+  color: #22c55e;
+}
+
+.sd-fuzzy.fuzzy-mocking {
+  background: rgba(251,146,60,0.2);
+  color: #fb923c;
+}
+
+.sd-fuzzy.fuzzy-insulting {
+  background: rgba(239,68,68,0.2);
+  color: #ef4444;
+}
+
+.sd-fuzzy.fuzzy-none {
+  background: rgba(107,114,128,0.2);
+  color: #9ca3af;
+}

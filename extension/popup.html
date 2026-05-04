@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sarcasm Detector</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+
+  <div class="popup">
+
+    <!-- Header -->
+    <header class="popup-header">
+      <div class="header-left">
+        <span class="logo">⚡</span>
+        <div>
+          <div class="title">Sarcasm Detector</div>
+          <div class="platform-badge" id="platform-badge">—</div>
+        </div>
+      </div>
+      <button class="btn-scan" id="btn-scan" title="Scan comments">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </svg>
+        Scan
+      </button>
+    </header>
+
+    <!-- Loading state -->
+    <div class="state-loading" id="state-loading" style="display:none">
+      <div class="spinner"></div>
+      <div class="loading-text">Analysing comments…</div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="state-empty" id="state-empty">
+      <div class="empty-icon">💬</div>
+      <div class="empty-title">No results yet</div>
+      <div class="empty-sub">Navigate to a Reddit or YouTube page with comments, then click Scan.</div>
+    </div>
+
+    <!-- Error state -->
+    <div class="state-error" id="state-error" style="display:none">
+      <div class="error-icon">⚠️</div>
+      <div class="error-text" id="error-text">Could not reach backend.</div>
+      <div class="error-hint">Make sure the backend is running at <code>localhost:8000</code></div>
+    </div>
+
+    <!-- Results -->
+    <div class="state-results" id="state-results" style="display:none">
+
+      <!-- Stats row -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-total">—</div>
+          <div class="stat-label">Comments</div>
+        </div>
+        <div class="stat-card accent">
+          <div class="stat-value" id="stat-pct">—</div>
+          <div class="stat-label">Tone</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-avg">—</div>
+          <div class="stat-label">Tone share</div>
+        </div>
+      </div>
+
+      <!-- Add under the Stats Row -->
+      <div class="filter-controls">
+        <button class="btn-filter active" data-filter="all">All</button>
+        <button class="btn-filter" data-filter="sarcastic">Sarcastic Only</button>
+        <button class="btn-clear" id="btn-clear-session">Reset Session</button>
+      </div>
+
+      <!-- Donut chart -->
+      <div class="chart-section">
+        <div class="chart-wrap">
+          <svg class="donut" viewBox="0 0 120 120" width="120" height="120">
+            <circle class="donut-track" cx="60" cy="60" r="46" />
+            <circle class="donut-fill" id="donut-fill" cx="60" cy="60" r="46" stroke-dasharray="0 289"
+              stroke-dashoffset="72" />
+            <text class="donut-center-pct" id="donut-pct" x="60" y="56" text-anchor="middle"
+              dominant-baseline="middle">0</text>
+            <text class="donut-center-label" x="60" y="70" text-anchor="middle">tone</text>
+          </svg>
+          <div class="chart-legend">
+            <div class="legend-item">
+              <span class="legend-dot sarcastic"></span>
+              <span id="legend-primary-label">tone</span>: <span id="legend-sarcastic-n">0</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot normal"></span>
+              <span id="legend-secondary-label">other tones</span>: <span id="legend-normal-n">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Score distribution bar -->
+      <div class="section-label">Score distribution</div>
+      <div class="bar-chart" id="bar-chart">
+        <!-- Filled by JS -->
+      </div>
+
+      <!-- Top sarcastic comments -->
+      <div class="section-label" id="top-label" style="display:none">Top sarcastic comments</div>
+      <div class="top-list" id="top-list">
+        <!-- Filled by JS -->
+      </div>
+
+      <!-- Export -->
+      <div class="export-row">
+        <button class="btn-export" id="btn-export">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Export CSV
+        </button>
+        <span class="export-hint" id="export-hint"></span>
+      </div>
+
+    </div><!-- /state-results -->
+
+  </div><!-- /popup -->
+
+  <script src="popup.js"></script>
+</body>
+
+</html>
