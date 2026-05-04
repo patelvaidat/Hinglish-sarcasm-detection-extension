@@ -8,6 +8,7 @@
 
 let currentStats = null;
 let currentPlatform = null;
+let currentFilter = 'all'; // Track current filter state
 
 // ─── DOM refs ────────────────────────────────────────────────────────────────
 
@@ -15,6 +16,7 @@ const btnScan       = document.getElementById('btn-scan');
 const btnExport     = document.getElementById('btn-export');
 const btnClearSession = document.getElementById('btn-clear-session');
 const platformBadge = document.getElementById('platform-badge');
+const filterButtons = document.querySelectorAll('.btn-filter');
 
 const stateLoading  = document.getElementById('state-loading');
 const stateEmpty    = document.getElementById('state-empty');
@@ -105,17 +107,22 @@ function buildBarChart(allPaired) {
 
 // ─── Top sarcastic comments ───────────────────────────────────────────────────
 
-function buildTopList(topSarcastic) {
+function buildTopList(filteredData) {
   topList.innerHTML = '';
 
-  if (!topSarcastic || topSarcastic.length === 0) {
+  if (!filteredData || filteredData.length === 0) {
     topLabel.style.display = 'none';
     return;
   }
 
   topLabel.style.display = 'block';
 
-  topSarcastic.forEach((item, i) => {
+  // Show top items (sorted by score)
+  const topItems = filteredData
+    .sort((a, b) => b.sarcasm_score - a.sarcasm_score)
+    .slice(0, 3);
+
+  topItems.forEach((item, i) => {
     const card = document.createElement('div');
     card.className = 'top-card';
 
@@ -123,14 +130,12 @@ function buildTopList(topSarcastic) {
     const preview = item.text.length > 120
       ? item.text.slice(0, 117) + '…'
       : item.text;
-    const toneLabel = formatToneLabel(item.tone_label || item.dominant_label);
     const fuzzyDegree = formatToneLabel(item.fuzzy_degree || 'none');
 
     card.innerHTML = `
       <div class="top-card-header">
         <span class="top-rank">#${i + 1}</span>
         <span class="top-author">${escapeHtml(item.author)}</span>
-        <span class="top-tone-badge">${escapeHtml(toneLabel)}</span>
         <span class="top-fuzzy-badge fuzzy-${item.fuzzy_degree || 'none'}">${escapeHtml(fuzzyDegree)}</span>
         <span class="top-score-badge">${scorePct}</span>
       </div>
@@ -149,15 +154,17 @@ function buildTopList(topSarcastic) {
 function renderResults(stats, platform) {
   currentStats = stats;
   currentPlatform = platform;
+  currentFilter = 'all'; // Reset filter to 'all' when new results load
 
   setPlatformBadge(platform);
 
+  // Set initial stat card values with full data
   statTotal.textContent = stats.total;
   statPct.textContent   = formatToneLabel(stats.dominantLabel);
   statAvg.textContent   = `${stats.dominantLabelPct ?? stats.avgScore}`;
 
-  statPct.parentElement.querySelector('.stat-label').textContent = 'Dominant tone';
-  statAvg.parentElement.querySelector('.stat-label').textContent = 'Tone share';
+  statPct.parentElement.querySelector('.stat-label').textContent = 'Sarcasm %';
+  statAvg.parentElement.querySelector('.stat-label').textContent = 'Sarcasm %';
 
   legendSarcasticN.textContent = stats.labelCounts?.[stats.dominantLabel] ?? stats.sarcasticCount;
   legendNormalN.textContent    = stats.total - (stats.labelCounts?.[stats.dominantLabel] ?? stats.sarcasticCount);
@@ -166,7 +173,7 @@ function renderResults(stats, platform) {
 
   updateDonut(parseFloat(stats.dominantLabelPct ?? stats.sarcasticPct));
   buildBarChart(stats.allPaired || []);
-  buildTopList(stats.topSarcastic || []);
+  buildTopList(stats.allPaired || []);
 
   const donutCenterLabel = document.querySelector('.donut-center-label');
   if (donutCenterLabel) {
@@ -175,8 +182,11 @@ function renderResults(stats, platform) {
 
   const topLabelText = document.getElementById('top-label');
   if (topLabelText) {
-    topLabelText.textContent = `Top ${formatToneLabel(stats.dominantLabel).toLowerCase()} comments`;
+    topLabelText.textContent = `Top comments`;
   }
+
+  // Initialize filter buttons
+  updateFilterButtons('all');
 
   showState('results');
 }
@@ -302,16 +312,71 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
-// ─── Bind events ─────────────────────────────────────────────────────────────
+// ─── Filter functionality ──────────────────────────────────────────────────────
+
+function updateFilterButtons(activeFilter) {
+  filterButtons.forEach(btn => {
+    if (btn.dataset.filter === activeFilter) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+}
+
+function applyFilter(filterType) {
+  currentFilter = filterType;
+  updateFilterButtons(filterType);
+  
+  if (!currentStats) return;
+
+  // Filter the data based on selection
+  let filteredData = currentStats.allPaired || [];
+  if (filterType === 'sarcastic') {
+    filteredData = filteredData.filter(item => item.is_sarcastic);
+  }
+
+  // Recalculate stats for filtered data
+  const sarcasticCount = filteredData.filter(c => c.is_sarcastic).length;
+  const totalCount = filteredData.length;
+  const sarcasticPct = totalCount > 0 ? ((sarcasticCount / totalCount) * 100).toFixed(1) : 0;
+
+  // Update stat cards
+  statTotal.textContent = totalCount;
+  statPct.textContent = sarcasticPct;
+  statAvg.textContent = sarcasticPct;
+
+  // Update legend counts
+  legendSarcasticN.textContent = sarcasticCount;
+  legendNormalN.textContent = totalCount - sarcasticCount;
+
+  // Update donut chart
+  updateDonut(parseFloat(sarcasticPct));
+
+  // Rebuild charts with filtered data
+  buildBarChart(filteredData);
+  buildTopList(filteredData);
+}
+
+// ─── Bind events ─────────────────────────────────────────────────────────────────
 
 btnScan.addEventListener('click', triggerScan);
 btnExport.addEventListener('click', exportCSV);
+
+filterButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    applyFilter(btn.dataset.filter);
+  });
+});
+
 if (btnClearSession) {
   btnClearSession.addEventListener('click', () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (!tabs[0]) return;
       chrome.runtime.sendMessage({ action: 'clearCache', tabId: tabs[0].id }, () => {
         // Clear local UI state
+        currentFilter = 'all';
+        updateFilterButtons('all');
         showState('empty');
         // Also notify content script to clear processedIds
         chrome.tabs.sendMessage(tabs[0].id, { action: 'clearCache' });

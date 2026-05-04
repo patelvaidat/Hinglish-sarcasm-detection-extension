@@ -87,7 +87,6 @@ function injectLabel(el, tone, score, fuzzyDegree) {
   label.dataset.fuzzyDegree = fuzzyDegree || 'none';
   label.innerHTML = `
     <span class="sd-icon">⚡</span>
-    <span class="sd-text">${formatToneLabel(tone)}</span>
     <span class="sd-fuzzy fuzzy-${fuzzyDegree || 'none'}">${formatToneLabel(fuzzyDegree)}</span>
     <span class="sd-score">${(score * 100).toFixed(0)}</span>
   `;
