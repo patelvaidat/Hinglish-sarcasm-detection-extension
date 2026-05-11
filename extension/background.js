@@ -83,48 +83,6 @@ function computeStats(comments, predictions) {
 }
 
 // Listen for messages from content scripts and popup
-// chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-
-//   // Content script sends scraped comments for analysis
-//   if (request.action === 'analyzeComments') {
-//     const tabId = sender.tab?.id;
-//     const { comments, platform } = request;
-
-//     if (!comments || comments.length === 0) {
-//       sendResponse({ success: false, error: 'No comments provided' });
-//       return true;
-//     }
-
-//     runBatchPrediction(comments)
-//       .then(predictions => {
-//         const stats = computeStats(comments, predictions);
-
-//         // Cache results for this tab so popup can retrieve them
-//         tabCache.set(tabId, {
-//           stats,
-//           platform,
-//           timestamp: Date.now(),
-//           commentCount: comments.length
-//         });
-
-//         // Notify popup if open
-//         chrome.runtime.sendMessage({
-//           action: 'resultsReady',
-//           tabId,
-//           stats,
-//           platform
-//         }).catch(() => {}); // popup may not be open, ignore
-
-//         sendResponse({ success: true, stats, predictions });
-//       })
-//       .catch(err => {
-//         console.error('[SarcasmDetector] Batch prediction failed:', err);
-//         sendResponse({ success: false, error: err.message });
-//       });
-
-//     return true; // keep message channel open for async response
-//   }
-
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'analyzeComments') {
     const tabId = sender.tab?.id;
